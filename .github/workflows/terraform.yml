@@ -37,7 +37,9 @@ jobs:
 
       - name: Terraform Plan
         id: plan
-        run: terraform plan -var="core_count=1" -var="thread_count=2" -out=tfplan echo "tfplan-path=tfplan" >> $GITHUB_OUTPUT
+        run: |
+          terraform plan -var="core_count=1" -var="thread_count=2" -out=tfplan 
+          echo "tfplan-path=tfplan" >> $GITHUB_OUTPUT
         working-directory: ./terraform
 
       - name: Apply Terraform (on push to main)
