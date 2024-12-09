@@ -1,0 +1,51 @@
+name: Terraform Workflow
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  terraform:
+    name: Terraform CI/CD
+    runs-on: ubuntu-latest
+
+    env:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      AWS_SESSION_TOKEN: ${{ secrets.AWS_SESSION_TOKEN }}
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v1
+        with:
+          terraform_version: 1.5.0 # Specify the version you are using
+
+      - name: Initialize terraform
+        run: terraform init
+        working-directory: ./terraform # Adjust the path to your Terraform files
+
+      - name: Validate terrform
+        run: terraform validate
+
+      - name: Terraform Plan
+        id: plan
+        run: terraform plan -var="core_count=1" -var="thread_count=2"
+        working-directory: ./terraform
+
+      - name: Apply Terraform (on push to main)
+        if: github.event_name == 'push'
+        run: terraform apply -var="core_count=1" -var="thread_count=2" -auto-approve
+        working-directory: ./terraform
+
+      - name: Destroy Resources
+        if: github.event_name == 'push'
+        run: terraform destroy -var="core_count=1" -var="thread_count=2" -auto-approve
+        working-directory: ./terraform
