@@ -30,7 +30,7 @@ jobs:
 
       - name: Initialize terraform
         run: terraform init
-        working-directory: ./terraform # Adjust the path to your Terraform files
+        working-directory: /terraform # Adjust the path to your Terraform files
 
       - name: Validate terrform
         run: terraform validate
@@ -38,14 +38,14 @@ jobs:
       - name: Terraform Plan
         id: plan
         run: terraform plan -var="core_count=1" -var="thread_count=2"
-        working-directory: ./terraform
+        working-directory: /terraform
 
       - name: Apply Terraform (on push to main)
         if: github.event_name == 'push'
         run: terraform apply -var="core_count=1" -var="thread_count=2" -auto-approve
-        working-directory: ./terraform
+        working-directory: /terraform
 
       - name: Destroy Resources
         if: github.event_name == 'push'
         run: terraform destroy -var="core_count=1" -var="thread_count=2" -auto-approve
-        working-directory: ./terraform
+        working-directory: /terraform
